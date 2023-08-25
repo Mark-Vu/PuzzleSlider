@@ -1,10 +1,10 @@
-package game;
-
-import board.Board;
-import board.BoardGen;
+package org.example.game;
 
 import java.util.*;
 import java.util.PriorityQueue;
+
+import org.example.board.Board;
+import org.example.board.BoardGen;
 
 public class Solver {
 	public int SIZE; //the dimension of the board

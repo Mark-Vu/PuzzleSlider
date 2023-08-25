@@ -1,4 +1,4 @@
-package config;
+package org.example.config;
 /*
  * All the settings for the app
  */

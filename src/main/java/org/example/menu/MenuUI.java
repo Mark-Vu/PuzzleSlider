@@ -1,8 +1,10 @@
-package menu;
+package org.example.menu;
 
-import game.GameUI;
 
 import javax.swing.*;
+
+import org.example.game.GameUI;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

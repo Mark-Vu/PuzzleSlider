@@ -1,9 +1,10 @@
-package game;
-
-import config.Config;
-import menu.MenuUI;
+package org.example.game;
 
 import javax.swing.*;
+
+import org.example.config.Config;
+import org.example.menu.MenuUI;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

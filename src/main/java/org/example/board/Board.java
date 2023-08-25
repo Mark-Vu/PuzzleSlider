@@ -1,4 +1,4 @@
-package board;
+package org.example.board;
 import java.util.*;
 
 /*

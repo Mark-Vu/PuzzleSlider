@@ -1,10 +1,12 @@
-package game;
-import board.BoardGen;
-import config.Config;
-import menu.MenuUI;
+package org.example.game;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
+
+import org.example.board.BoardGen;
+import org.example.config.Config;
+import org.example.menu.MenuUI;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,8 +14,6 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.Timer;
-
-
 
 
 public  class GameLogic implements ActionListener{

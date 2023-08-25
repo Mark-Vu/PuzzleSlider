@@ -1,10 +1,10 @@
-package src.main.java.org.example;
-
-import config.Config;
-import menu.MenuUI;
+package org.example;
 
 import javax.swing.JFrame;
 import javax.swing.UIManager;
+
+import org.example.config.Config;
+import org.example.menu.MenuUI;
 
 class Main {
     public static void main(String[] args) {

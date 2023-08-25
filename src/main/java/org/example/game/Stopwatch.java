@@ -1,8 +1,9 @@
-package game;
+package org.example.game;
 
-import config.Config;
 
 import javax.swing.*;
+
+import org.example.config.Config;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
