@@ -1,10 +1,8 @@
 package org.example.game;
-
-import javax.swing.*;
-
 import org.example.config.Config;
 import org.example.menu.MenuUI;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,8 +23,8 @@ public class GameUI implements ActionListener {
 
     public JButton backButton;
 
-    public JButton hintButton;
-    public JButton solveButton;
+    public static JButton hintButton;
+    public static JButton solveButton;
     public JLabel timerLabel; 
 
     GameLogic gameLogic;
