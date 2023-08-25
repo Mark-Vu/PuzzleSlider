@@ -1,19 +1,19 @@
 package org.example.game;
-
-import javax.swing.*;
-import javax.swing.border.LineBorder;
-
 import org.example.board.BoardGen;
 import org.example.config.Config;
 import org.example.menu.MenuUI;
-
+import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.swing.Timer;
+
+
 
 
 public  class GameLogic implements ActionListener{
@@ -34,6 +34,11 @@ public  class GameLogic implements ActionListener{
     private Stopwatch stopWatch;
     private GridLayout buttonGrid ;
     private JPanel boardPanel;
+
+    private boolean usedHint = false;
+    private boolean usedSolver = false ;
+
+    private MouseListener emptyMouseListener = new MouseAdapter() {};
 
 
     /*
@@ -309,16 +314,17 @@ public  class GameLogic implements ActionListener{
                  * If wins -> popup message and get back to the menu
                  */
                 stopWatch.stop();
-                this.victoryPopUp();
+                this.showPopUp();
                
             }
 
-                this.currentBoard = this.updateBoard();
+            this.currentBoard = this.updateBoard();
             
         }
 
 
         if (clickedButton.getActionCommand().equals("showHint") ) {
+            usedHint = true ;
             if (this.isComplete()) {
                 System.out.println("DUMA its solved");
             } else {
@@ -326,33 +332,86 @@ public  class GameLogic implements ActionListener{
             }
         }
 
-        if (clickedButton.getActionCommand().equals("solveBoard")){
+        if (clickedButton.getActionCommand().equals("solveBoard")) {
+            stopWatch.stop();
+            usedSolver = true;
+            System.out.println("I am in this function");
             ArrayList<String> result = this.solveBoard();
-            while (result.isEmpty() == false) { 
-                System.out.println("testing the code");
-
-                int number = this.extractNumber(result.get(0));
-
-                System.out.println("number : " + number ) ;
-
+        
+            Timer timer = new Timer(400, new ActionListener() {
+                private int currentIndex = 0;
+                private int blinkCount = 0;
+                private Color[] colors = {Color.YELLOW, tileColor};
+        
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (currentIndex < result.size()) {
+                        String move = result.get(currentIndex);
+                        int number = extractNumber(move);
+                        char direction = extractMove(move);
+                        JButton targetTile = findTileWithNumber(number);
+                        JButton emptyTile = findEmptyTile();
+        
                 
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
+                        if (blinkCount < 5) { 
+                            targetTile.setBackground(colors[blinkCount % colors.length]);
+                            blinkCount++;
+                        } else {
+                            targetTile.setBackground(Color.LIGHT_GRAY); 
+                            performSwapping(targetTile, emptyTile, direction);
+                            currentIndex++;
+                            blinkCount = 0; 
+                        }
+                        
+                    } else {
+                        ((Timer) e.getSource()).stop();
+                         setButtonsAndTilesClickable(true); 
+                        showPopUp() ; 
+                    }
                 }
-    
-                result.remove(0) ;                
-
-            }
-            
-           
+            });
+            setButtonsAndTilesClickable(false); 
+            timer.start();
         }
-
-    
+        
     }
 
+    private JButton findTileWithNumber(int number) {
+        for (JButton tile : tiles) {
+            if (tile.getText().equals(String.valueOf(number))) {
+                return tile;
+            }
+        }
+        return null;
+    }
+    private void performSwapping (JButton targetTile , JButton emptyTile , char direction){ 
+        if (direction == 'U' && isAdjacent(targetTile, emptyTile)) {
+            swapTiles(targetTile, emptyTile);
+        } else if (direction == 'D' && isAdjacent(targetTile, emptyTile)) {
+            swapTiles(targetTile, emptyTile);
+        } else if (direction == 'L' && isAdjacent(targetTile, emptyTile)) {
+            swapTiles(targetTile, emptyTile);
+        } else if (direction == 'R' && isAdjacent(targetTile, emptyTile)) {
+            swapTiles(targetTile, emptyTile);
+        }
+    }
+    private JButton findEmptyTile() {
+        for (JButton button : tiles) {
+            if (button.getText().equals("")) {
+                return button;
+            }
+        }
+        return null; 
+    }
+    
+
+    private void swapTiles(JButton tile1, JButton tile2) {
+        String tempText = tile1.getText();
+        tile1.setText(tile2.getText());
+        tile2.setText(tempText);
+        ++countMove;
+        updateCountMoveLabel();
+    }
     public void victoryPopUp() {
         String message1 = "total move : " + countMove;
         String message2 = "total time : " + stopWatch.getText() ; 
@@ -362,36 +421,58 @@ public  class GameLogic implements ActionListener{
         this.frame.repaint();
         MenuUI menu = new MenuUI(this.frame.getWidth(), this.frame.getHeight(), this.frame);
     }
-//    private void getCoordinateOfNumberedButton (String label){
 
-//         for (Component component : boardPanel.getComponents()) {
-//             if (component instanceof JButton && ((JButton) component).getText().equals(label)) {
-//                 int x = component.getX();
-//                 int y = component.getY();
-//                 int row = (y / component.getHeight());
-//                 int col = (x / component.getWidth());
-//                 this.numberedRow = Integer.toString(row);
-//                 this.numberedColumn = Integer.toString(col) ; 
-//                 break;
-//             }
-//         }
 
-//    }
+    /*
+     * precondition : solve button is clicked or hint button is clicked
+     * postcondition : pop up appear 
+     * description: if the user use the solve button or the hint to solve the board, the user are not allow to store the result
+     *              in the database
+     */
+    public void normalPopUp(){ 
 
-//    private void getCoordinateOfEmptyButton (){
-//     String label = "" ;
+        String message1 = "total move : " + countMove;
+        String message2 = "Result cannot be saved due to the use of hint or solver functions."; 
+        String completeMessage = message1 + "\n" + message2;
+        JOptionPane.showMessageDialog(null, completeMessage, "Puzzle completed", JOptionPane.PLAIN_MESSAGE);
+        this.frame.getContentPane().removeAll();
+        this.frame.repaint();
+        MenuUI menu = new MenuUI(this.frame.getWidth(), this.frame.getHeight(), this.frame);
 
-//     for (Component component : boardPanel.getComponents()) {
-//         if (component instanceof JButton && ((JButton) component).getText().equals(label)) {
-//             int x = component.getX();
-//             int y = component.getY();
-//             int row = (y / component.getHeight());
-//             int col = (x / component.getWidth());
-//             this.emptyColumn = Integer.toString(col) ; 
-//             break;
-//         }
-//     }
+    }
 
+
+    /*
+    *description : different situation show different pop up : 
+    * if the user click on the hint button or the victoruPopUp button , the it will display the normal pop up 
+    * if the user complete the puzzle without any hint or using the solve button, the victory pop up 
+    
+    */ 
+    private void showPopUp(){ 
+
+        if (usedHint || usedSolver)
+            normalPopUp();
+        else
+            victoryPopUp();
+    }
+
+    
+    /*
+     * description : make the hint button , solve button and the tiles non clickable while performing the solve animation
+     * 
+     */
+    private void setButtonsAndTilesClickable(boolean clickable) {
+        GameUI.hintButton.setEnabled(clickable);
+        GameUI.solveButton.setEnabled(clickable);
+    
+        for (JButton tile : tiles) {
+            if (clickable) {
+                tile.addActionListener(this);
+                tile.addMouseListener(emptyMouseListener); // Remove the empty mouse listener
+            } else {
+                tile.removeActionListener(this);
+                tile.addMouseListener(emptyMouseListener); // Add the empty mouse listener
+            }
+        }
+    }
 }
-
-
