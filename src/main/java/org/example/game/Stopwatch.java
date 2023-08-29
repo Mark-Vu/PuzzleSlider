@@ -3,7 +3,7 @@ package org.example.game;
 
 import javax.swing.*;
 
-import org.example.config.Config;
+import org.example.config.ApplicationConfig;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -15,10 +15,10 @@ public class Stopwatch extends JLabel {
     private  boolean isRunning; 
 
     public Stopwatch() {
-        setFont(new Font(Config.FONT, Font.PLAIN, Config.FONT_SIZE));
+        setFont(new Font(ApplicationConfig.FONT, Font.PLAIN, ApplicationConfig.FONT_SIZE));
         setText("00:00:00");
         // setBorder(new LineBorder(Color.black, 2));
-        setPreferredSize(new Dimension(Config.BUTTON_WIDTH, 50));
+        setPreferredSize(new Dimension(ApplicationConfig.BUTTON_WIDTH, 50));
 
         timer = new Timer(1000, new ActionListener() {
             @Override

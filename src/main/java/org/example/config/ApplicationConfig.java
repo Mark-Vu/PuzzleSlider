@@ -5,7 +5,7 @@ package org.example.config;
 
 import java.awt.Color;
 
-public class Config {
+public class ApplicationConfig {
     public static final int BUTTON_HEIGHT = 40;
     public static final int BUTTON_WIDTH = 100;
     public static final String FONT = "Arial";

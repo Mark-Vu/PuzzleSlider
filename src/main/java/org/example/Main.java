@@ -3,8 +3,11 @@ package org.example;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 
-import org.example.config.Config;
+import org.example.config.ApplicationConfig;
+import org.example.config.DatabaseConfig;
 import org.example.menu.MenuUI;
+
+import com.mongodb.client.MongoDatabase;
 
 class Main {
     public static void main(String[] args) {
@@ -13,7 +16,9 @@ class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        MongoDatabase db = DatabaseConfig.getDatabase();
+
         JFrame frame = new JFrame();
-        MenuUI mainFrame = new MenuUI(Config.FRAME_WIDTH, Config.FRAME_HEIGHT, frame);
+        MenuUI mainFrame = new MenuUI(ApplicationConfig.FRAME_WIDTH, ApplicationConfig.FRAME_HEIGHT, frame);
     }
 }

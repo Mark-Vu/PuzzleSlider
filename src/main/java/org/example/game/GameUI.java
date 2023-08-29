@@ -1,5 +1,5 @@
 package org.example.game;
-import org.example.config.Config;
+import org.example.config.ApplicationConfig;
 import org.example.menu.MenuUI;
 
 import javax.swing.*;
@@ -112,7 +112,7 @@ public class GameUI implements ActionListener {
 
     public JButton createBackButton() {
         backButton = new JButton("back");
-        backButton.setPreferredSize(new Dimension(Config.BUTTON_WIDTH, Config.BUTTON_HEIGHT));
+        backButton.setPreferredSize(new Dimension(ApplicationConfig.BUTTON_WIDTH, ApplicationConfig.BUTTON_HEIGHT));
         backButton.setActionCommand("backToMenu");
         backButton.addActionListener(this);
         return backButton;
@@ -120,7 +120,7 @@ public class GameUI implements ActionListener {
 
     public JButton createHintButton() {
         hintButton = new JButton("hint !");
-        hintButton.setPreferredSize(new Dimension(Config.BUTTON_WIDTH, Config.BUTTON_HEIGHT));
+        hintButton.setPreferredSize(new Dimension(ApplicationConfig.BUTTON_WIDTH, ApplicationConfig.BUTTON_HEIGHT));
         hintButton.setActionCommand("showHint");
         hintButton.addActionListener(gameLogic);
         return hintButton;
@@ -129,7 +129,7 @@ public class GameUI implements ActionListener {
 
     public JButton createSolveButton() {
         solveButton = new JButton("Solve");
-        solveButton.setPreferredSize(new Dimension(Config.BUTTON_WIDTH, Config.BUTTON_HEIGHT));
+        solveButton.setPreferredSize(new Dimension(ApplicationConfig.BUTTON_WIDTH, ApplicationConfig.BUTTON_HEIGHT));
         solveButton.setActionCommand("solveBoard");
         solveButton.addActionListener(gameLogic);
         return solveButton;
@@ -137,9 +137,9 @@ public class GameUI implements ActionListener {
 
     public JLabel createLabel(String text) {
         JLabel label = new JLabel(text, SwingConstants.CENTER);
-        label.setFont(new Font(Config.FONT, Font.PLAIN, Config.FONT_SIZE));
+        label.setFont(new Font(ApplicationConfig.FONT, Font.PLAIN, ApplicationConfig.FONT_SIZE));
         // label.setBorder(new LineBorder(Color.black, 2, true));
-        label.setPreferredSize(new Dimension(Config.BUTTON_WIDTH + 50, 50));
+        label.setPreferredSize(new Dimension(ApplicationConfig.BUTTON_WIDTH + 50, 50));
         return label;
     }
 
