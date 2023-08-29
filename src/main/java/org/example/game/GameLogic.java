@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,6 +40,9 @@ public  class GameLogic implements ActionListener{
     private boolean usedSolver = false ;
 
     private MouseListener emptyMouseListener = new MouseAdapter() {};
+
+    private JTextArea textArea;
+    private JComboBox<String> countryComboBox;
 
 
     /*
@@ -414,12 +418,80 @@ public  class GameLogic implements ActionListener{
     }
     public void victoryPopUp() {
         String message1 = "total move : " + countMove;
-        String message2 = "total time : " + stopWatch.getText() ; 
+        String message2 = "total time : " + stopWatch.getText();
         String completeMessage = message1 + "\n" + message2;
-        JOptionPane.showMessageDialog(null, completeMessage, "Congratulations!", JOptionPane.PLAIN_MESSAGE);
-        this.frame.getContentPane().removeAll();
-        this.frame.repaint();
-        MenuUI menu = new MenuUI(this.frame.getWidth(), this.frame.getHeight(), this.frame);
+        /*
+         * change the condition to determine display or not display the name box and the country box 
+         */
+        if (true) {
+           
+            JPanel inputPanel = panelForTopFivePlayer ();
+
+            Object[] message = { completeMessage, inputPanel };
+            int result = JOptionPane.showConfirmDialog(
+                null, message, "Congratulations!",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE
+            );
+
+            if (result == JOptionPane.OK_OPTION) {
+                
+                String enteredName = textArea.getText();
+                String selectedCountry = (String) countryComboBox.getSelectedItem();
+                System.out.println("entered name :" + enteredName);
+                System.out.println("selected country : " + selectedCountry) ;
+                /*
+                 * include your logic to process the enteredName and the selected country
+                 */
+
+               
+                this.frame.getContentPane().removeAll();
+                this.frame.repaint();
+                MenuUI menu = new MenuUI(this.frame.getWidth(), this.frame.getHeight(), this.frame);
+            }
+
+            
+        }
+        else{
+
+            JOptionPane.showMessageDialog(null, completeMessage, "Congratulations!", JOptionPane.PLAIN_MESSAGE);
+            this.frame.getContentPane().removeAll();
+            this.frame.repaint();
+            MenuUI menu = new MenuUI(this.frame.getWidth(), this.frame.getHeight(), this.frame);
+        }
+    
+        
+    
+
+    }
+
+    private JPanel panelForTopFivePlayer() {
+        JLabel nameLabel = new JLabel("Enter your name:");
+        nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+    
+        textArea = new JTextArea(1, 20);
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+    
+        JLabel countryLabel = new JLabel("Select your country:");
+        countryLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+    
+        String[] countries = Locale.getISOCountries();
+        countryComboBox = new JComboBox<>();
+    
+        for (String country : countries) {
+            Locale obj = new Locale("", country);
+            countryComboBox.addItem(obj.getDisplayCountry());
+        }
+    
+        JPanel inputPanel = new JPanel();
+        inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
+        inputPanel.add(nameLabel);
+        inputPanel.add(scrollPane);
+        inputPanel.add(countryLabel);
+        inputPanel.add(countryComboBox);
+    
+        return inputPanel;
     }
 
 
