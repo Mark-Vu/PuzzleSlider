@@ -1,6 +1,6 @@
 package org.example.game;
 import org.example.board.BoardGen;
-import org.example.config.Config;
+import org.example.config.ApplicationConfig;
 import org.example.menu.MenuUI;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -199,7 +199,7 @@ public  class GameLogic implements ActionListener{
                     //Changing colors
                     Timer timer = new Timer(200, new ActionListener() {
                         private int counter;
-                        private Color[] colors = {tileColor, Config.HINT_COLOR};
+                        private Color[] colors = {tileColor, ApplicationConfig.HINT_COLOR};
 
                         @Override
                         public void actionPerformed(ActionEvent e) {
