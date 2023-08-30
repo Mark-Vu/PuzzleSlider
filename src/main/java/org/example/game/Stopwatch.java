@@ -12,7 +12,8 @@ import java.awt.event.ActionListener;
 public class Stopwatch extends JLabel {
     private Timer timer;
     private long startTime;
-    private  boolean isRunning; 
+    private  boolean isRunning;
+    private long elapsedTime;
 
     public Stopwatch() {
         setFont(new Font(ApplicationConfig.FONT, Font.PLAIN, ApplicationConfig.FONT_SIZE));
@@ -24,7 +25,7 @@ public class Stopwatch extends JLabel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 long currentTime = System.currentTimeMillis();
-                long elapsedTime = (currentTime - startTime) / 1000; // in seconds
+                elapsedTime = (currentTime - startTime) / 1000; // in seconds
                 updateTimerLabel(elapsedTime);
             }
         });
@@ -57,5 +58,9 @@ public class Stopwatch extends JLabel {
 
     public boolean isRunning() { 
         return isRunning;
+    }
+
+    public long getElapsedTime() {
+        return elapsedTime;
     }
 }

@@ -1,7 +1,13 @@
 package org.example.game;
 import org.example.board.BoardGen;
 import org.example.config.ApplicationConfig;
+import org.example.dao.UserDAO;
 import org.example.menu.MenuUI;
+import org.example.model.User;
+
+import org.example.ranking.ScoreRecord;
+import org.w3c.dom.UserDataHandler;
+
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
@@ -10,6 +16,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,7 +33,7 @@ public  class GameLogic implements ActionListener{
     private  JButton[] tiles ; //Contains all the tiles
     private  int countMove;
     private JLabel countMoveLabel;
- 
+
     private  int[][] currentBoard;
 
     private  Solver solver;
@@ -43,7 +50,6 @@ public  class GameLogic implements ActionListener{
 
     private JTextArea textArea;
     private JComboBox<String> countryComboBox;
-
 
     /*
      * use to track the coordinate of button with number and empty button 
@@ -64,29 +70,29 @@ public  class GameLogic implements ActionListener{
     }
     public void initializeBoard() {
         /*
-         * Initialize the board
-         */
+* Initialize the board
+*/
         BoardGen boardGen = new BoardGen(boardSize);
         this.currentBoard = boardGen.generateRandomBoard(5);
     }
-    
+
     public static int[] flatten2DArray(int[][] arr) {
         /*
-         * 2D array to 1D array
-         */
+* 2D array to 1D array
+*/
         int rows = arr.length;
         int cols = arr[0].length;
-    
+
         int[] flattened = new int[rows * cols];
         int index = 0;
-    
+
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 flattened[index] = arr[i][j];
                 index++;
             }
         }
-    
+
         return flattened;
     }
 
@@ -99,7 +105,7 @@ public  class GameLogic implements ActionListener{
         int[] currentBoard1D = flatten2DArray(this.currentBoard);
         int temp = boardSize * boardSize;
         JButton emptyButton = new JButton("");
-    
+
         for (int i = 0; i < temp; i++) {
             JButton button;
             if (currentBoard1D[i] == 0) {
@@ -112,15 +118,15 @@ public  class GameLogic implements ActionListener{
             tiles[i].setFont(new Font("Monospaced", Font.PLAIN, 40));
             this.boardPanel.add(button);
         }
-        
+
         //Set padding of the middle panel 
         this.boardPanel.setBorder(new LineBorder(Color.GRAY, 10));
-    
+
         for (JButton button : tiles) {
             button.addActionListener(this);
             button.setBackground(Color.lightGray);
         }
-        
+
         this.currentBoard = this.updateBoard();
         this.boardPanel.setBounds(200, 65, 500, 500);
         return this.boardPanel;
@@ -128,9 +134,9 @@ public  class GameLogic implements ActionListener{
 
     public  int[][] updateBoard() {
         /*
-         * updates the board from tiles to 2d array int[][] board
-         * Called when create the board and whenever player make changes on board
-         */
+* updates the board from tiles to 2d array int[][] board
+* Called when create the board and whenever player make changes on board
+*/
         int[][] updatedBoard = new int[boardSize][boardSize];
         int index = 0;
         for (int row = 0; row < boardSize; row++) {
@@ -150,8 +156,8 @@ public  class GameLogic implements ActionListener{
 
     public  int extractNumber(String input) {
         /*
-         *  result element is "8D" -> return 8
-         */
+*  result element is "8D" -> return 8
+*/
         Pattern pattern = Pattern.compile("(\\d+)\\s");
         Matcher matcher = pattern.matcher(input);
         if (matcher.find()) {
@@ -159,11 +165,11 @@ public  class GameLogic implements ActionListener{
         }
         return -1; // or handle the case when no match is found
     }
-    
+
     public  char extractMove(String input) {
         /*
-         *  result element is "8D" -> return D
-         */
+*  result element is "8D" -> return D
+*/
         Pattern pattern = Pattern.compile("\\s(\\D)");
         Matcher matcher = pattern.matcher(input);
         if (matcher.find()) {
@@ -172,7 +178,7 @@ public  class GameLogic implements ActionListener{
         return '\0'; // or handle the case when no match is found
     }
 
-    
+
     public  void showHint() {
         ArrayList<String> result = solveBoard();
         if (!result.isEmpty()) {
@@ -188,8 +194,8 @@ public  class GameLogic implements ActionListener{
     private JButton hintTile;
     public  void showHintAnimation(int number, char move) {
         /*
-         * Change color when player press hint
-         */
+* Change color when player press hint
+*/
         for (int i = 0; i < this.tiles.length; i++) {
             if (!this.tiles[i].getText().isEmpty()) {
                 int tileNumber = Integer.parseInt(this.tiles[i].getText());
@@ -228,14 +234,14 @@ public  class GameLogic implements ActionListener{
             isShowingHint = false;
         }
     }
-    
-    
+
+
 
     public  ArrayList<String> solveBoard() {
         /*
-         * Return the result list
-         * ex: {"8 U", "5 D", ...}
-         */
+* Return the result list
+* ex: {"8 U", "5 D", ...}
+*/
         currentBoard = this.updateBoard();
         solver = new Solver(currentBoard, boardSize);
         ArrayList<String> result = solver.returnResult();
@@ -269,10 +275,10 @@ public  class GameLogic implements ActionListener{
             int temp1  = 0 ;  
             int temp2 = 0 ; 
             if (this.tiles[i].getText().equals("") == false){
-                    temp1 = Integer.parseInt(this.tiles[i].getText()) ;
+                temp1 = Integer.parseInt(this.tiles[i].getText()) ;
             }
             if(this.tiles[i+1].getText().equals("") == false){
-                    temp2 = Integer.parseInt(this.tiles[i+1].getText()) ; 
+                temp2 = Integer.parseInt(this.tiles[i+1].getText()) ;
             }
             if(temp1 >temp2)    
                 return false ;
@@ -290,40 +296,40 @@ public  class GameLogic implements ActionListener{
         // Check if the button clicked is the "board"
         if (clickedButton.getActionCommand().equals("puzzleButton")) {
 
-                JButton swappedButton = null;
-                // Find the empty space button
-                for (JButton button : this.tiles) {
-                    if (button.getText().equals("")) {
-                        swappedButton = button;
-                        break;
-                    }
+            JButton swappedButton = null;
+            // Find the empty space button
+            for (JButton button : this.tiles) {
+                if (button.getText().equals("")) {
+                    swappedButton = button;
+                    break;
                 }
+            }
 
-                if (this.isAdjacent(clickedButton, swappedButton)) {
-                    this.stopHintAnimation();
-                    String tempText = clickedButton.getText();
-                    clickedButton.setText(swappedButton.getText());
-                    swappedButton.setText(tempText);
-                    ++countMove;
-                    updateCountMoveLabel();
-                }
-                
+            if (this.isAdjacent(clickedButton, swappedButton)) {
+                this.stopHintAnimation();
+                String tempText = clickedButton.getText();
+                clickedButton.setText(swappedButton.getText());
+                swappedButton.setText(tempText);
+                ++countMove;
+                updateCountMoveLabel();
+            }
+
 
             if (  (stopWatch.isRunning() == false && this.isComplete() == false) || (stopWatch.isRunning() == false && this.isComplete() == true) ){ 
                 stopWatch.start() ;
             }
             if (countMove > 0 && stopWatch.isRunning() == true && this.isComplete() == true ){
                 /*
-                 * Check if player wins
-                 * If wins -> popup message and get back to the menu
-                 */
+* Check if player wins
+* If wins -> popup message and get back to the menu
+*/
                 stopWatch.stop();
                 this.showPopUp();
-               
+
             }
 
             this.currentBoard = this.updateBoard();
-            
+
         }
 
 
@@ -341,12 +347,12 @@ public  class GameLogic implements ActionListener{
             usedSolver = true;
             System.out.println("I am in this function");
             ArrayList<String> result = this.solveBoard();
-        
+
             Timer timer = new Timer(400, new ActionListener() {
                 private int currentIndex = 0;
                 private int blinkCount = 0;
                 private Color[] colors = {Color.YELLOW, tileColor};
-        
+
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     if (currentIndex < result.size()) {
@@ -355,8 +361,8 @@ public  class GameLogic implements ActionListener{
                         char direction = extractMove(move);
                         JButton targetTile = findTileWithNumber(number);
                         JButton emptyTile = findEmptyTile();
-        
-                
+
+
                         if (blinkCount < 5) { 
                             targetTile.setBackground(colors[blinkCount % colors.length]);
                             blinkCount++;
@@ -366,10 +372,10 @@ public  class GameLogic implements ActionListener{
                             currentIndex++;
                             blinkCount = 0; 
                         }
-                        
+
                     } else {
                         ((Timer) e.getSource()).stop();
-                         setButtonsAndTilesClickable(true); 
+                        setButtonsAndTilesClickable(true);
                         showPopUp() ; 
                     }
                 }
@@ -377,7 +383,7 @@ public  class GameLogic implements ActionListener{
             setButtonsAndTilesClickable(false); 
             timer.start();
         }
-        
+
     }
 
     private JButton findTileWithNumber(int number) {
@@ -407,7 +413,7 @@ public  class GameLogic implements ActionListener{
         }
         return null; 
     }
-    
+
 
     private void swapTiles(JButton tile1, JButton tile2) {
         String tempText = tile1.getText();
@@ -421,31 +427,35 @@ public  class GameLogic implements ActionListener{
         String message2 = "total time : " + stopWatch.getText();
         String completeMessage = message1 + "\n" + message2;
         /*
-         * change the condition to determine display or not display the name box and the country box 
-         */
-        if (true) {
-           
-            JPanel inputPanel = panelForTopFivePlayer ();
+* change the condition to determine display or not display the name box and the country box
+*/
+        long time = stopWatch.getElapsedTime();
+        ScoreRecord scoreRecord = new ScoreRecord(time, countMove, boardSize);
+        System.out.println("DUMA:" + scoreRecord.getScore());
+        //If the user is better than the user ranked 50 then ask for name and country
+        if (UserDAO.isBetterThanTop50(boardSize, scoreRecord.getScore(), time, countMove)) {
+            JPanel inputPanel = panelForTop50Players();
 
             Object[] message = { completeMessage, inputPanel };
             int result = JOptionPane.showConfirmDialog(
-                null, message, "Congratulations!",
-                JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE
+                    null, message, "Congratulations!",
+                    JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE
             );
 
             if (result == JOptionPane.OK_OPTION) {
-                
+
                 String enteredName = textArea.getText();
                 String selectedCountry = (String) countryComboBox.getSelectedItem();
                 System.out.println("entered name :" + enteredName);
-                System.out.println("selected country : " + selectedCountry) ;
-                /*
-                 * include your logic to process the enteredName and the selected country
-                 */
+                System.out.println("selected country : " + selectedCountry);
 
-               
                 this.frame.getContentPane().removeAll();
                 this.frame.repaint();
+
+                HashMap<Integer, ScoreRecord> scoreRecordHashMap = new HashMap<>();
+                scoreRecordHashMap.put(boardSize, scoreRecord);
+                User user = new User(enteredName, selectedCountry, scoreRecordHashMap);
+                UserDAO.insertUser(user, boardSize);
                 MenuUI menu = new MenuUI(this.frame.getWidth(), this.frame.getHeight(), this.frame);
             }
 
@@ -464,7 +474,7 @@ public  class GameLogic implements ActionListener{
 
     }
 
-    private JPanel panelForTopFivePlayer() {
+    private JPanel panelForTop50Players() {
         JLabel nameLabel = new JLabel("Enter your name:");
         nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
     

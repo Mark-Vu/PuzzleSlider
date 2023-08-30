@@ -1,14 +1,19 @@
 package org.example.model;
 
+import org.example.ranking.ScoreRecord;
+
+import java.util.HashMap;
+
 public class User {
     private String name;
     private String country;
-    private int ranking;
+
+    private HashMap<Integer, ScoreRecord> scores;
     
-    public User(String name, String country, int ranking) {
+    public User(String name, String country, HashMap<Integer, ScoreRecord> scores) {
         this.name = name;
         this.country = country;
-        this.ranking = ranking;
+        this.scores = scores;
     }
     
     public String getName() {
@@ -27,11 +32,11 @@ public class User {
         this.country = country;
     }
 
-    public int getRanking() {
-        return ranking;
+    public HashMap<Integer, ScoreRecord> getScores() {
+        return scores;
     }
 
-    public void setRanking(int ranking) {
-        this.ranking = ranking;
+    public void setScores(HashMap<Integer, ScoreRecord> scores) {
+        this.scores = scores;
     }
 }
