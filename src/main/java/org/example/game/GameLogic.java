@@ -70,9 +70,11 @@ public  class GameLogic implements ActionListener{
     }
     public void initializeBoard() {
         /*
-* Initialize the board
-*/
+        * Initialize the board
+        */
         BoardGen boardGen = new BoardGen(boardSize);
+
+        //This will determine the difficulty of the board, the higher -> the harder the board
         this.currentBoard = boardGen.generateRandomBoard(5);
     }
 
@@ -335,17 +337,12 @@ public  class GameLogic implements ActionListener{
 
         if (clickedButton.getActionCommand().equals("showHint") ) {
             usedHint = true ;
-            if (this.isComplete()) {
-                System.out.println("DUMA its solved");
-            } else {
-                this.showHint();
-            }
+            this.showHint();
         }
 
         if (clickedButton.getActionCommand().equals("solveBoard")) {
             stopWatch.stop();
             usedSolver = true;
-            System.out.println("I am in this function");
             ArrayList<String> result = this.solveBoard();
 
             Timer timer = new Timer(400, new ActionListener() {
@@ -430,8 +427,10 @@ public  class GameLogic implements ActionListener{
 * change the condition to determine display or not display the name box and the country box
 */
         long time = stopWatch.getElapsedTime();
+
+        //ScoreRecord also calculated the score for us
         ScoreRecord scoreRecord = new ScoreRecord(time, countMove, boardSize);
-        System.out.println("DUMA:" + scoreRecord.getScore());
+
         //If the user is better than the user ranked 50 then ask for name and country
         if (UserDAO.isBetterThanTop50(boardSize, scoreRecord.getScore(), time, countMove)) {
             JPanel inputPanel = panelForTop50Players();
@@ -446,8 +445,6 @@ public  class GameLogic implements ActionListener{
 
                 String enteredName = textArea.getText();
                 String selectedCountry = (String) countryComboBox.getSelectedItem();
-                System.out.println("entered name :" + enteredName);
-                System.out.println("selected country : " + selectedCountry);
 
                 this.frame.getContentPane().removeAll();
                 this.frame.repaint();
@@ -456,7 +453,7 @@ public  class GameLogic implements ActionListener{
                 scoreRecordHashMap.put(boardSize, scoreRecord);
                 User user = new User(enteredName, selectedCountry, scoreRecordHashMap);
                 UserDAO.insertUser(user, boardSize);
-                MenuUI menu = new MenuUI(this.frame.getWidth(), this.frame.getHeight(), this.frame);
+                MenuUI menu = new MenuUI(this.frame);
             }
 
             
@@ -466,7 +463,7 @@ public  class GameLogic implements ActionListener{
             JOptionPane.showMessageDialog(null, completeMessage, "Congratulations!", JOptionPane.PLAIN_MESSAGE);
             this.frame.getContentPane().removeAll();
             this.frame.repaint();
-            MenuUI menu = new MenuUI(this.frame.getWidth(), this.frame.getHeight(), this.frame);
+            MenuUI menu = new MenuUI(this.frame);
         }
     
         
@@ -519,7 +516,7 @@ public  class GameLogic implements ActionListener{
         JOptionPane.showMessageDialog(null, completeMessage, "Puzzle completed", JOptionPane.PLAIN_MESSAGE);
         this.frame.getContentPane().removeAll();
         this.frame.repaint();
-        MenuUI menu = new MenuUI(this.frame.getWidth(), this.frame.getHeight(), this.frame);
+        MenuUI menu = new MenuUI(this.frame);
 
     }
 

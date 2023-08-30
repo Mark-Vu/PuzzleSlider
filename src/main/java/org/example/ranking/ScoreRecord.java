@@ -55,6 +55,11 @@ public class ScoreRecord {
     }
     
     public int calculateScore(int boardSize) {
+        /*
+        * This method calculates the score based on the moves and time
+        * the bigger the board, time is less important and moves is more important
+        * Therefore, the time weight is lesser with bigger board
+         */
         double timeWeight = 0.3;
         double moveWeight;
         if (boardSize == 4) {

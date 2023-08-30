@@ -52,9 +52,9 @@ public class GameUI implements ActionListener {
     
 
     private JPanel createTopPanel() {
-        JPanel topPanel = new JPanel(new BorderLayout());
-        // topPanel.setBackground(Color.blue);
-        topPanel.setPreferredSize(new Dimension(this.frame.getWidth(), 100));
+            JPanel topPanel = new JPanel(new BorderLayout());
+            // topPanel.setBackground(Color.blue);
+            topPanel.setPreferredSize(new Dimension(this.frame.getWidth(), 100));
 
 
         this.backButton = this.createBackButton();
@@ -99,7 +99,6 @@ public class GameUI implements ActionListener {
     }
 
     public void drawGame(int WIDTH, int HEIGHT) {
-        this.frame.setTitle("(board size)");
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.frame.setLayout(new BoxLayout(this.frame.getContentPane(), BoxLayout.Y_AXIS));
         this.frame.pack();
@@ -157,7 +156,7 @@ public class GameUI implements ActionListener {
 
         if (clickedButton.getActionCommand().equals("backToMenu")) {
             this.destroy();
-            menu = new MenuUI(this.frame.getWidth(), this.frame.getHeight(), this.frame);
+            menu = new MenuUI(this.frame);
         }
     
     }

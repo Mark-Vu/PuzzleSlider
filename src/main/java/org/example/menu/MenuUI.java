@@ -4,6 +4,7 @@ package org.example.menu;
 import javax.swing.*;
 
 import org.example.game.GameUI;
+import org.example.ranking.RankingUI;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -11,23 +12,17 @@ import java.awt.event.ActionListener;
 
 public class MenuUI implements ActionListener {
     private final String GAME_NAME = "BroSlider";
-    private int width;
-    private int height;
     private JFrame frame;
     JPanel titlePanel;
     JPanel optionPanel;
 
-    public MenuUI(int width, int height, JFrame frame) {
-        this.width = width;
-        this.height = height;
+    public MenuUI(JFrame frame) {
         this.frame = frame;
-        this.frame.setSize(width, height);
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.frame.setLayout(new BorderLayout());
         this.frame.setLocationRelativeTo(null);
         this.drawMenu();
         this.frame.setVisible(true);
-        
     }
 
     private void drawMenu() {
@@ -62,8 +57,9 @@ public class MenuUI implements ActionListener {
         addButton("4x4", optionPanel, gbc);
         addButton("5x5", optionPanel, gbc);
         addButton("6x6", optionPanel, gbc);
+        addButton("Ranking", optionPanel, gbc);
 
-        optionPanel.setPreferredSize(new Dimension(width, height));
+        optionPanel.setPreferredSize(new Dimension(frame.getWidth(), frame.getHeight()));
         optionPanel.setBackground(Color.GRAY);
         return optionPanel;
     }
@@ -81,11 +77,14 @@ public class MenuUI implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         JButton clickedButton = (JButton) e.getSource();
         String buttonText = clickedButton.getText();
-        int boardSize = Integer.parseInt(buttonText.substring(0, 1));
-
         frame.getContentPane().removeAll();
         frame.repaint();
-        GameUI game = new GameUI(boardSize, frame);
+        if (buttonText.equals("Ranking")) {
+            RankingUI ranking = new RankingUI(frame);
+        } else {
+            int boardSize = Integer.parseInt(buttonText.substring(0, 1));
+            GameUI game = new GameUI(boardSize, frame);
+        }
     }
 
 }

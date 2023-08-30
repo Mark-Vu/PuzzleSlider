@@ -14,11 +14,38 @@ import java.util.*;
 
 
 public class UserDAO {
+    /*
+    Data Access Object for the users collection:
+    Schema:
+    {
+  "name": "",
+  "country": "",
+  "scores": {
+  	"3": {
+  	  "ranking": 1,
+  	  "score": 9,
+  	  "moves":3,
+  	  "time": {
+  	  	"$numberLong":"8"
+  	  }
+  	}
+    "5": {
+      "ranking": 3,
+      "score": 8,
+      "moves": 8,
+      "time": {
+        "$numberLong": "8"
+      }
+    }
+  }
+}
+     */
     private static final MongoCollection collection = DatabaseConfig.getUsersCollection();
 
     public static void insertUser(User user, int boardSize) {
         Document scoresDoc = new Document();
         for (Map.Entry<Integer, ScoreRecord> entry : user.getScores().entrySet()) {
+            //Create a board score, default ranking 0 when insert user to db
             Document boardScoreDoc = new Document("ranking", 0)
                     .append("score", entry.getValue().getScore())
                     .append("moves", entry.getValue().getMoves())
@@ -45,14 +72,18 @@ public class UserDAO {
             int score = boardScoreDoc.getInteger("score");
             long time = boardScoreDoc.getLong("time");
             int moves = boardScoreDoc.getInteger("moves");
+
             ScoreRecord record = new ScoreRecord(ranking, score, time, moves);
             scores.put(Integer.parseInt(boardSize), record);
         }
-
-        return new User(name, country, scores);
+        User user = new User(name, country, scores);
+        return user;
     }
 
     public static void updateRankings(int boardSize) {
+        /*
+        Update rankings of all users
+         */
         PriorityQueue<User> userPriorityQueue = new PriorityQueue<>(new UserComparator(boardSize));
         FindIterable<Document> users = collection.find();
         for (Document doc : users) {
@@ -75,23 +106,6 @@ public class UserDAO {
         }
     }
 
-    public static List<User> getTopRankedUsersByBoardSize(int boardSize) {
-        List<User> topRankedUsers = new ArrayList<>();
-
-        MongoCursor<Document> cursor = collection.find()
-            .sort(new Document("scores." + boardSize + ".ranking", 1))
-            .limit(50)
-            .iterator();
-
-        while (cursor.hasNext()) {
-            Document doc = cursor.next();
-            User user = documentToUser(doc);
-            topRankedUsers.add(user);
-        }
-
-        return topRankedUsers;
-    }
-
     public static User getUserByRankingAndBoardSize(int ranking, int boardSize) {
         Document query = new Document("scores." + boardSize + ".ranking", ranking);
         Document result = (Document) collection.find(query).first();
@@ -99,23 +113,6 @@ public class UserDAO {
             return documentToUser(result);
         }
         return null; // User not found with the specified ranking
-    }
-
-    public static int calculateRanking(int boardSize,
-                                       int score,
-                                       long time,
-                                       int moves) {
-        List<User> rankedUsers = getTopRankedUsersByBoardSize(boardSize);
-
-        User newUser = new User("", "", new HashMap<>()); // Create a temporary user with empty values
-        newUser.getScores().put(boardSize, new ScoreRecord(score, time, moves)); // Set the provided values
-
-        rankedUsers.add(newUser);
-
-        rankedUsers.sort(new UserComparator(boardSize));
-
-        int userRanking = rankedUsers.indexOf(newUser) + 1;
-        return userRanking;
     }
 
     public static boolean isBetterThanTop50(int boardSize, int score, long time, int moves) {
@@ -141,5 +138,38 @@ public class UserDAO {
 
         return false; // Input player is not better than the top 50 player
     }
+    public static List<User> getUsersByBoardSizeRanked(int boardSize) {
+        List<User> users = new ArrayList<>();
+        FindIterable<Document> userDocs = collection.find();
 
+        PriorityQueue<User> userPriorityQueue = new PriorityQueue<>(new UserComparator(boardSize));
+
+        for (Document doc : userDocs) {
+            User user = documentToUser(doc);
+            if (user.getScores().containsKey(boardSize)) {
+                userPriorityQueue.add(user);
+            }
+        }
+
+        int ranking = 1;
+        while (!userPriorityQueue.isEmpty() && ranking <= 50) {
+            User user = userPriorityQueue.poll();
+            user.getScores().get(boardSize).setRanking(ranking);
+            users.add(user);
+            ranking++;
+        }
+
+        return users;
+    }
+
+    public static HashMap<Integer, List<User>> getUsersByAllBoardSizesRanked() {
+        HashMap<Integer, List<User>> usersByBoardSize = new HashMap<>();
+
+        for (int boardSize = 3; boardSize <= 6; boardSize++) {
+            List<User> users = getUsersByBoardSizeRanked(boardSize);
+            usersByBoardSize.put(boardSize, users);
+        }
+
+        return usersByBoardSize;
+    }
 }
