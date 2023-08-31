@@ -18,57 +18,64 @@ public class RankingUI implements ActionListener {
     private JButton backButton;
     private JPanel topPanel;
     private JScrollPane rankingPane;
+    private JPanel loadingPanel;
     private JTable rankingsTable;
     private DefaultTableModel tableModel;
-    
-    
+
+
     private JButton[] rankingButtons = new JButton[4];
-    
+
     private HashMap<Integer, List<User>> usersRankings = new HashMap<>();
     public RankingUI(JFrame frame) {
         this.frame = frame;
         this.drawGame(this.frame.getWidth(), this.frame.getHeight());
     }
-    
+
     public void drawGame(int WIDTH, int HEIGHT) {
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.frame.setLayout(new BorderLayout());
-        this.frame.pack();
         this.frame.setSize(WIDTH, HEIGHT);
+
+
         this.topPanel = this.createTopPanel();
         this.frame.add(topPanel, BorderLayout.NORTH);
-        this.frame.setVisible(true);
-        if (this.usersRankings.isEmpty()) {
-            System.out.println("DUMA");
-            //Only get data from db for the first load, then save to hashmap
-            this.usersRankings = UserDAO.getUsersByAllBoardSizesRanked();
-        }
-        //Load ranking for 3x3 board by default
+
+
         this.rankingPane = createRankingPanel();
-        loadTopRankings(3);
-        frame.add(this.rankingPane, BorderLayout.CENTER);
+        this.loadingPanel = this.createLoadingPanel();
+        frame.add(this.loadingPanel, BorderLayout.CENTER);
+        SwingUtilities.invokeLater(() -> {
+            // Call methods that require loading here
+            this.usersRankings = UserDAO.getUsersByAllBoardSizesRanked();
+            this.loadTopRankings(3);
+            this.loadingPanel.setVisible(false);
+            this.rankingPane.setVisible(true);
+            frame.add(this.rankingPane, BorderLayout.CENTER);
+        });
+
+        this.frame.setVisible(true);
     }
-    
+
     public JPanel createTopPanel() {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setPreferredSize(new Dimension(this.frame.getWidth(), 100));
         this.backButton = this.createButtons("back", "backToMenu");
-        
+
         //To store buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER,10,25));
-        // buttonPanel.setBackground(Color.BLUE);
         buttonPanel.add(this.backButton);
         String[] boardSizes = {"3x3", "4x4", "5x5", "6x6"};
         for (int i = 0; i < 4; i++) {
             rankingButtons[i] = this.createButtons(boardSizes[i], "ranking" + boardSizes[i]);
             buttonPanel.add(rankingButtons[i]);
         }
-
+        JPanel reloadPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 25));
+        JButton reloadButton = this.createButtons("Reload", "reloadRankings");
+        reloadPanel.add(reloadButton);
         topPanel.add(buttonPanel, BorderLayout.WEST);
-        // topPanel.add(this.solveButton, BorderLayout.EAST);
+        topPanel.add(reloadPanel, BorderLayout.EAST);
         return topPanel;
     }
-    
+
     public JScrollPane createRankingPanel() {
         String[] columnNames = {"Rank", "Name", "Country", "Score", "Time", "Moves"};
         tableModel = new DefaultTableModel(columnNames, 0);
@@ -77,7 +84,18 @@ public class RankingUI implements ActionListener {
         JScrollPane scrollPane = new JScrollPane(rankingsTable);
         return scrollPane;
     }
-    
+
+    public static JPanel createLoadingPanel() {
+        JPanel loadingPanel = new JPanel(new BorderLayout()); // Use BorderLayout for vertical alignment
+
+        JLabel loadingLabel = new JLabel("Loading...", SwingConstants.CENTER);
+        loadingLabel.setHorizontalAlignment(SwingConstants.CENTER); // Center the text horizontally
+
+        loadingPanel.add(loadingLabel, BorderLayout.NORTH); // Place the label at the top
+
+        return loadingPanel;
+    }
+
     public JButton createButtons(String text, String command) {
         JButton createdButton = new JButton(text);
         createdButton.setPreferredSize(new Dimension(ApplicationConfig.BUTTON_WIDTH, ApplicationConfig.BUTTON_HEIGHT));
@@ -85,20 +103,7 @@ public class RankingUI implements ActionListener {
         createdButton.addActionListener(this);
         return createdButton;
     }
-    
-    public JButton createImageButton(String imagePath, String command) {
-        // Load the image from the specified path
-        ImageIcon icon = new ImageIcon(imagePath);
 
-        // Create a button with the image as its icon
-        JButton createdButton = new JButton(icon);
-        createdButton.setPreferredSize(new Dimension(icon.getIconWidth(), icon.getIconHeight()));
-        createdButton.setActionCommand(command);
-        createdButton.addActionListener(this);
-
-        return createdButton;
-    }
-    
     @Override
     public void actionPerformed(ActionEvent e) {
         JButton clickedButton = (JButton) e.getSource();
@@ -106,22 +111,31 @@ public class RankingUI implements ActionListener {
         if (clickedButton.getActionCommand().equals("backToMenu")) {
             this.destroy();
             MenuUI menu = new MenuUI(this.frame);
+        } else if (clickedButton.getActionCommand().equals("reloadRankings")) {
+            this.rankingPane.setVisible(false);
+            this.loadingPanel.setVisible(true);
+            SwingUtilities.invokeLater(() -> {
+                this.usersRankings = UserDAO.getUsersByAllBoardSizesRanked();
+                this.loadTopRankings(3);
+                this.loadingPanel.setVisible(false);
+                this.rankingPane.setVisible(true);
+            });
         }
         else {
             String buttonText = clickedButton.getText();
             int boardSize = Integer.parseInt(buttonText.substring(0, 1));
             loadTopRankings(boardSize);
-        }    
+        }
     }
     public void destroy() {
         this.frame.getContentPane().removeAll();
         this.frame.repaint();
     }
-    
+
     private void loadTopRankings(int boardSize) {
         // Retrieve the list of users for the specified board size from the usersRankings map
         List<User> topRankedUsers = usersRankings.get(boardSize);
-        
+
         // Clear the table data before adding new rows
         tableModel.setRowCount(0);
         rankingPane.setBackground(Color.BLACK);

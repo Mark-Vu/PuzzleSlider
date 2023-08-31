@@ -51,8 +51,6 @@ public class MenuUI implements ActionListener {
         //insets controls the padding of each buttons
         gbc.insets = new Insets(10, 0, 10, 0);
 
-        JLabel label = new JLabel("Label Text");
-        optionPanel.add(label, gbc);
         addButton("3x3", optionPanel, gbc);
         addButton("4x4", optionPanel, gbc);
         addButton("5x5", optionPanel, gbc);
