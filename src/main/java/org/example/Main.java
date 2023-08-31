@@ -19,6 +19,7 @@ class Main {
         MongoDatabase db = DatabaseConfig.getDatabase();
 
         JFrame frame = new JFrame();
-        MenuUI mainFrame = new MenuUI(ApplicationConfig.FRAME_WIDTH, ApplicationConfig.FRAME_HEIGHT, frame);
+        frame.setSize(ApplicationConfig.FRAME_WIDTH, ApplicationConfig.FRAME_HEIGHT);
+        MenuUI mainFrame = new MenuUI(frame);
     }
 }
