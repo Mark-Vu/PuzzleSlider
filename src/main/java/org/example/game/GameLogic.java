@@ -68,6 +68,11 @@ public  class GameLogic implements ActionListener{
         this.countMoveLabel = countMoveLabel;
         this.stopWatch = stopWatch;
     }
+
+    public GameLogic() {
+
+    }
+
     public void initializeBoard() {
         /*
         * Initialize the board
@@ -75,7 +80,7 @@ public  class GameLogic implements ActionListener{
         BoardGen boardGen = new BoardGen(boardSize);
 
         //This will determine the difficulty of the board, the higher -> the harder the board
-        this.currentBoard = boardGen.generateRandomBoard(5);
+        this.currentBoard = boardGen.generateRandomBoard(10);
     }
 
     public static int[] flatten2DArray(int[][] arr) {
@@ -183,6 +188,7 @@ public  class GameLogic implements ActionListener{
 
     public  void showHint() {
         ArrayList<String> result = solveBoard();
+
         if (!result.isEmpty()) {
             String firstElement = result.get(0);
 
@@ -423,9 +429,6 @@ public  class GameLogic implements ActionListener{
         String message1 = "total move : " + countMove;
         String message2 = "total time : " + stopWatch.getText();
         String completeMessage = message1 + "\n" + message2;
-        /*
-* change the condition to determine display or not display the name box and the country box
-*/
         long time = stopWatch.getElapsedTime();
 
         //ScoreRecord also calculated the score for us
