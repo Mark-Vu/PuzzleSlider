@@ -10,7 +10,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class MenuUI implements ActionListener {
+public class MenuUI extends Container implements ActionListener {
     private final String GAME_NAME = "BroSlider";
     private JFrame frame;
     JPanel titlePanel;
