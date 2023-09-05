@@ -452,10 +452,10 @@ public  class GameLogic implements ActionListener{
                 this.frame.getContentPane().removeAll();
                 this.frame.repaint();
 
-                HashMap<Integer, ScoreRecord> scoreRecordHashMap = new HashMap<>();
-                scoreRecordHashMap.put(boardSize, scoreRecord);
-                User user = new User(enteredName, selectedCountry, scoreRecordHashMap);
-                UserDAO.insertUser(user, boardSize);
+                if (enteredName.isEmpty()) {
+                    enteredName = "Anonymous";
+                }
+                addUserToRankings(scoreRecord, enteredName, selectedCountry);
                 MenuUI menu = new MenuUI(this.frame);
             }
 
@@ -538,7 +538,13 @@ public  class GameLogic implements ActionListener{
             victoryPopUp();
     }
 
-    
+    public void addUserToRankings(ScoreRecord scoreRecord, String enteredName, String selectedCountry) {
+        HashMap<Integer, ScoreRecord> scoreRecordHashMap = new HashMap<>();
+        scoreRecordHashMap.put(boardSize, scoreRecord);
+        User user = new User(enteredName, selectedCountry, scoreRecordHashMap);
+        UserDAO.insertUser(user, boardSize);
+    }
+
     /*
      * description : make the hint button , solve button and the tiles non clickable while performing the solve animation
      * 
