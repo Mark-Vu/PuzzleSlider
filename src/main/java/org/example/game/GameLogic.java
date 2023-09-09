@@ -328,9 +328,9 @@ public  class GameLogic implements ActionListener{
             }
             if (countMove > 0 && stopWatch.isRunning() == true && this.isComplete() == true ){
                 /*
-* Check if player wins
-* If wins -> popup message and get back to the menu
-*/
+                * Check if player wins
+                * If wins -> popup message and get back to the menu
+                */
                 stopWatch.stop();
                 this.showPopUp();
 
@@ -346,11 +346,11 @@ public  class GameLogic implements ActionListener{
             this.showHint();
         }
 
+
         if (clickedButton.getActionCommand().equals("solveBoard")) {
             stopWatch.stop();
             usedSolver = true;
             ArrayList<String> result = this.solveBoard();
-
             Timer timer = new Timer(400, new ActionListener() {
                 private int currentIndex = 0;
                 private int blinkCount = 0;
@@ -425,54 +425,66 @@ public  class GameLogic implements ActionListener{
         ++countMove;
         updateCountMoveLabel();
     }
+    
     public void victoryPopUp() {
         String message1 = "total move : " + countMove;
         String message2 = "total time : " + stopWatch.getText();
         String completeMessage = message1 + "\n" + message2;
         long time = stopWatch.getElapsedTime();
 
-        //ScoreRecord also calculated the score for us
+        // ScoreRecord also calculated the score for us
         ScoreRecord scoreRecord = new ScoreRecord(time, countMove, boardSize);
 
-        //If the user is better than the user ranked 50 then ask for name and country
+        // If the user is better than the user ranked 50 then ask for name and country
         if (UserDAO.isBetterThanTop50(boardSize, scoreRecord.getScore(), time, countMove)) {
             JPanel inputPanel = panelForTop50Players();
+            int result;
 
-            Object[] message = { completeMessage, inputPanel };
-            int result = JOptionPane.showConfirmDialog(
-                    null, message, "Congratulations!",
-                    JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE
-            );
+            do {
+                Object[] message = { completeMessage, inputPanel };
+                result = JOptionPane.showConfirmDialog(
+                        null, message, "Congratulations!",
+                        JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE
+                );
 
-            if (result == JOptionPane.OK_OPTION) {
+                if (result == JOptionPane.OK_OPTION) {
+                    String enteredName = textArea.getText();
+                    String selectedCountry = (String) countryComboBox.getSelectedItem();
 
-                String enteredName = textArea.getText();
-                String selectedCountry = (String) countryComboBox.getSelectedItem();
+                    if (enteredName.isEmpty()) {
+                        JOptionPane.showMessageDialog(null, "Please enter your name.", "Error", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        System.out.println("entered name : " + enteredName);
+                        System.out.println("selectedCountry : "+ selectedCountry);
+                        System.out.println("I entered something in the name section and clicked ok");
+                        this.frame.getContentPane().removeAll();
+                        this.frame.repaint();
+//                        HashMap<Integer, ScoreRecord> scoreRecordHashMap = new HashMap<>();
+//                        scoreRecordHashMap.put(boardSize, scoreRecord);
+//                        User user = new User(enteredName, selectedCountry, scoreRecordHashMap);
+//                        UserDAO.insertUser(user, boardSize);
 
-                this.frame.getContentPane().removeAll();
-                this.frame.repaint();
 
-                HashMap<Integer, ScoreRecord> scoreRecordHashMap = new HashMap<>();
-                scoreRecordHashMap.put(boardSize, scoreRecord);
-                User user = new User(enteredName, selectedCountry, scoreRecordHashMap);
-                UserDAO.insertUser(user, boardSize);
-                MenuUI menu = new MenuUI(this.frame);
-            }
+                        MenuUI menu = new MenuUI(this.frame);
+                        System.out.println("I am at the end of this function");
 
-            
-        }
-        else{
+                        break;
 
+                    }
+                }
+            } while (result != JOptionPane.CANCEL_OPTION && result != JOptionPane.CLOSED_OPTION);
+        } else {
             JOptionPane.showMessageDialog(null, completeMessage, "Congratulations!", JOptionPane.PLAIN_MESSAGE);
             this.frame.getContentPane().removeAll();
             this.frame.repaint();
+            System.out.println("I am here after clicking ok" );
             MenuUI menu = new MenuUI(this.frame);
+            this.frame.setContentPane(menu);
+            this.frame.revalidate();
+            this.frame.repaint();
         }
-    
-        
-    
-
     }
+
 
     private JPanel panelForTop50Players() {
         JLabel nameLabel = new JLabel("Enter your name:");

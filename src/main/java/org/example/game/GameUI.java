@@ -36,12 +36,8 @@ public class GameUI implements ActionListener {
     public GameUI(int size, JFrame frame) {
         this.frame = frame;
         boardSize = size;
-        // this.countMoveLabel = this.createCountMoveLabel();
         this.bottomPanel = this.createBottomPanel();
-        // this.stopWatch = new Stopwatch();
         gameLogic = new GameLogic(size, countMoveLabel, this.stopWatch,this.frame);
-        // this.createSolveButton();
-        // this.createHintButton();
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.topPanel = this.createTopPanel();
         this.board = gameLogic.createBoard();
