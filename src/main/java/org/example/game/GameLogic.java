@@ -562,10 +562,10 @@ public  class GameLogic implements ActionListener{
         for (JButton tile : tiles) {
             if (clickable) {
                 tile.addActionListener(this);
-                tile.addMouseListener(emptyMouseListener); // Remove the empty mouse listener
+                tile.addMouseListener(emptyMouseListener);
             } else {
                 tile.removeActionListener(this);
-                tile.addMouseListener(emptyMouseListener); // Add the empty mouse listener
+                tile.addMouseListener(emptyMouseListener); 
             }
         }
     }
