@@ -459,10 +459,10 @@ public  class GameLogic implements ActionListener{
                         System.out.println("I entered something in the name section and clicked ok");
                         this.frame.getContentPane().removeAll();
                         this.frame.repaint();
-//                        HashMap<Integer, ScoreRecord> scoreRecordHashMap = new HashMap<>();
-//                        scoreRecordHashMap.put(boardSize, scoreRecord);
-//                        User user = new User(enteredName, selectedCountry, scoreRecordHashMap);
-//                        UserDAO.insertUser(user, boardSize);
+                        HashMap<Integer, ScoreRecord> scoreRecordHashMap = new HashMap<>();
+                        scoreRecordHashMap.put(boardSize, scoreRecord);
+                        User user = new User(enteredName, selectedCountry, scoreRecordHashMap);
+                        UserDAO.insertUser(user, boardSize);
 
 
                         MenuUI menu = new MenuUI(this.frame);
