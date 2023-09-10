@@ -16,6 +16,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -36,7 +37,9 @@ public  class GameLogic implements ActionListener{
 
     private  int[][] currentBoard;
 
-    private  Solver solver;
+
+    //temperory change for testing
+    private  dfsSolver solver;
     private  boolean isShowingHint = false;
 
     private Stopwatch stopWatch;
@@ -251,8 +254,11 @@ public  class GameLogic implements ActionListener{
 * ex: {"8 U", "5 D", ...}
 */
         currentBoard = this.updateBoard();
-        solver = new Solver(currentBoard, boardSize);
+        System.out.println(Arrays.deepToString(currentBoard));
+        //temperory change for testing
+        solver = new dfsSolver(currentBoard, boardSize);
         ArrayList<String> result = solver.returnResult();
+        System.out.println("return result : " + result);
         return result;
 
     }

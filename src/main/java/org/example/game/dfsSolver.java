@@ -1,41 +1,63 @@
 package org.example.game;
 
-public class dfsSolver{
+import org.example.board.Board;
+import org.example.board.BoardGen;
 
-    public int boardSize = 0 ; 
-    public int[][] goalBoard ; 
-    public int[][] initialBoard;
-
+import java.util.*;
 
 
+public class dfsSolver {
+    public int SIZE;
+    public int[][] goalBoard;
+    public int[][] startBoard;
+    private BoardGen boardGen;
+    private HashSet<Integer> visited;
 
-    private int getBoardSize() { 
-        return boardSize; 
-    }
-    private  int [][] getGoalBoard() { 
-        return goalBoard;
-    }
-
-    private int [][] getInitialBoard() { 
-        return initialBoard;
-    }
-    
-    public void setBoardSize(int boardSize) { 
-        this.boardSize  = boardSize ; 
+    public dfsSolver(int[][] startBoard, int SIZE) {
+        this.startBoard = startBoard;
+        this.SIZE = SIZE;
+        this.boardGen = new BoardGen(SIZE);
+        this.visited = new HashSet<>();
     }
 
-    public void setGoalBoard (int boardSize) {
-        int[][] temp = new int [boardSize][boardSize];
-		int num = 1;
-		for (int i = 0; i < boardSize; i++) {
-			for (int j = 0; j < boardSize; j++) {
-				temp[i][j] = num ;
-                num++ ; 
-			}
-		}
-        temp [boardSize-1][boardSize-1]  = 0 ; 
-    
-        this.goalBoard = temp ; 
-        return ; 
-    }  
+    public ArrayList<String> returnResult() {
+        ArrayList<String> result = new ArrayList<>();
+        this.goalBoard = this.boardGen.generateGoalBoard();
+
+        Board resultState = this.solve(this.startBoard);
+        while (resultState.getParent() != null) {
+            result.add(resultState.getMove());
+            resultState = resultState.getParent();
+        }
+        System.out.println("I am here" );
+        Collections.reverse(result);
+        return result;
+    }
+
+    public Board solve(int[][] start) {
+        this.goalBoard = this.boardGen.generateGoalBoard();
+        Stack<Board> stack = new Stack<>();
+        Board startState = new Board(start);
+        stack.push(startState);
+        Board goalState = new Board(this.goalBoard);
+
+        while (!stack.isEmpty()) {
+            Board node = stack.pop();
+
+            if (node.getHashCode() == goalState.getHashCode()) {
+                return node;
+            }
+
+            visited.add(node.getHashCode()); // Mark the current board configuration as visited
+
+            for (Board neighbor : node.generateChild()) {
+                if (!visited.contains(neighbor.getHashCode())) {
+                    stack.push(neighbor);
+                    neighbor.setParent(node);
+                }
+            }
+        }
+
+        return null; // No solution found
+    }
 }

@@ -82,8 +82,6 @@ public class GameUI implements ActionListener {
 
     public JPanel createBottomPanel() {
         bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 200 , 0));
-        // bottomPanel.setBackground(Color.blue);
-        // bottomPanel.setBackground(Color.red);
         bottomPanel.setPreferredSize(new Dimension(this.frame.getWidth(),60));
         this.countMoveLabel = this.createLabel("Total move : 0");
         this.stopWatch = new Stopwatch();
