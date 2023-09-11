@@ -12,28 +12,40 @@ public class dfsSolver {
     public int[][] startBoard;
     private BoardGen boardGen;
     private HashSet<Integer> visited;
+    private boolean algorithmFinished ;
 
     public dfsSolver(int[][] startBoard, int SIZE) {
         this.startBoard = startBoard;
         this.SIZE = SIZE;
         this.boardGen = new BoardGen(SIZE);
         this.visited = new HashSet<>();
+        this.algorithmFinished = false ;
+
+    }
+
+    public boolean isAlgorithmFinished() {
+        return algorithmFinished;
     }
 
     public ArrayList<String> returnResult() {
+
         ArrayList<String> result = new ArrayList<>();
+        this.algorithmFinished = false ;
         this.goalBoard = this.boardGen.generateGoalBoard();
 
         Board resultState = this.solve(this.startBoard);
+
         while (resultState.getParent() != null) {
             result.add(resultState.getMove());
             resultState = resultState.getParent();
         }
         System.out.println("I am here" );
         Collections.reverse(result);
+        // Set the flag to true after the algorithm completes
+        this.algorithmFinished = true;
+
         return result;
     }
-
     public Board solve(int[][] start) {
         this.goalBoard = this.boardGen.generateGoalBoard();
         Stack<Board> stack = new Stack<>();
