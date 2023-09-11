@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,7 +61,9 @@ public  class GameLogic implements ActionListener{
     private String numberedRow ; 
     private String  numberedColumn;
     private String  emptyRow ; 
-    private String  emptyColumn ; 
+    private String  emptyColumn ;
+
+    private JDialog  loadingPopUp ;
 
     public GameLogic(int boardSize, JLabel countMoveLabel, Stopwatch stopWatch, JFrame frame) {
         this.frame = frame;
@@ -353,47 +356,93 @@ public  class GameLogic implements ActionListener{
         }
 
 
+//        if (clickedButton.getActionCommand().equals("solveBoard")) {
+//            stopWatch.stop();
+//            usedSolver = true;
+//            loadingPopUp = createLoadingDialog();
+//            ArrayList<String> result = this.solveBoard();
+//            Timer timer = new Timer(400, new ActionListener() {
+//                private int currentIndex = 0;
+//                private int blinkCount = 0;
+//                private Color[] colors = {Color.YELLOW, tileColor};
+//
+//                @Override
+//                public void actionPerformed(ActionEvent e) {
+//                    if (currentIndex < result.size()) {
+//                        String move = result.get(currentIndex);
+//                        int number = extractNumber(move);
+//                        char direction = extractMove(move);
+//                        JButton targetTile = findTileWithNumber(number);
+//                        JButton emptyTile = findEmptyTile();
+//
+//
+//                        if (blinkCount < 5) {
+//                            targetTile.setBackground(colors[blinkCount % colors.length]);
+//                            blinkCount++;
+//                        } else {
+//                            targetTile.setBackground(Color.LIGHT_GRAY);
+//                            performSwapping(targetTile, emptyTile, direction);
+//                            currentIndex++;
+//                            blinkCount = 0;
+//                        }
+//
+//                    } else {
+//                        ((Timer) e.getSource()).stop();
+//                        setButtonsAndTilesClickable(true);
+//                        showPopUp() ;
+//                    }
+//                }
+//            });
+//            setButtonsAndTilesClickable(false);
+//            timer.start();
+//        }
         if (clickedButton.getActionCommand().equals("solveBoard")) {
-            stopWatch.stop();
-            usedSolver = true;
-            ArrayList<String> result = this.solveBoard();
-            Timer timer = new Timer(400, new ActionListener() {
-                private int currentIndex = 0;
-                private int blinkCount = 0;
-                private Color[] colors = {Color.YELLOW, tileColor};
+        stopWatch.stop();
+        usedSolver = true;
 
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (currentIndex < result.size()) {
-                        String move = result.get(currentIndex);
-                        int number = extractNumber(move);
-                        char direction = extractMove(move);
-                        JButton targetTile = findTileWithNumber(number);
-                        JButton emptyTile = findEmptyTile();
-
-
-                        if (blinkCount < 5) { 
-                            targetTile.setBackground(colors[blinkCount % colors.length]);
-                            blinkCount++;
-                        } else {
-                            targetTile.setBackground(Color.LIGHT_GRAY); 
-                            performSwapping(targetTile, emptyTile, direction);
-                            currentIndex++;
-                            blinkCount = 0; 
-                        }
-
-                    } else {
-                        ((Timer) e.getSource()).stop();
-                        setButtonsAndTilesClickable(true);
-                        showPopUp() ; 
-                    }
-                }
+        // Create the loading pop-up
+            SwingUtilities.invokeLater(() -> {
+                this.loadingPopUp = createLoadingDialog();
             });
-            setButtonsAndTilesClickable(false); 
-            timer.start();
-        }
+
+
+
+            System.out.println("I am before the doInBackground function");
+        // Create and execute the SwingWorker to run the algorithm in the background
+        SwingWorker<ArrayList<String>, Void> solverWorker = new SwingWorker<ArrayList<String>, Void>() {
+            @Override
+            protected ArrayList<String> doInBackground() throws Exception {
+                System.out.println("I am in the doInBackground function");
+                return solveBoard(); // Run your algorithm and return the result
+            }
+        };
+
+
+        // Add a PropertyChangeListener to detect when the SwingWorker is done
+        solverWorker.addPropertyChangeListener(evt -> {
+            if (evt.getPropertyName().equals("state") && evt.getNewValue() == SwingWorker.StateValue.DONE) {
+
+                ArrayList<String> result ;
+                try {
+
+                    result = solverWorker.get(); // Get the result from doInBackground
+                    System.out.println("result of the algorithm : " +Arrays.deepToString(result.toArray()));
+                    closeLoadingPopup();
+                    updateUIWithResult(result); // Update the UI and perform swapping
+                } catch (InterruptedException | ExecutionException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        solverWorker.execute(); // Start the SwingWorker
+        setButtonsAndTilesClickable(false);
 
     }
+
+
+}
+
 
     private JButton findTileWithNumber(int number) {
         for (JButton tile : tiles) {
@@ -545,8 +594,7 @@ public  class GameLogic implements ActionListener{
     /*
     *description : different situation show different pop up : 
     * if the user click on the hint button or the victoruPopUp button , the it will display the normal pop up 
-    * if the user complete the puzzle without any hint or using the solve button, the victory pop up 
-    
+    * if the user complete the puzzle without any hint or using the solve button, the victory pop up
     */ 
     private void showPopUp(){ 
 
@@ -575,4 +623,72 @@ public  class GameLogic implements ActionListener{
             }
         }
     }
+
+
+
+    private void updateUIWithResult(ArrayList<String> result) {
+        // Update the UI with the algorithm result and perform swapping
+        final int[] currentIndex = {0};
+        final int[] blinkCount = {0};
+        Color[] colors = {Color.YELLOW, tileColor};
+
+        Timer timer = new Timer(400, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (currentIndex[0] < result.size()) {
+                    String move = result.get(currentIndex[0]);
+                    int number = extractNumber(move);
+                    char direction = extractMove(move);
+                    JButton targetTile = findTileWithNumber(number);
+                    JButton emptyTile = findEmptyTile();
+
+                    if (blinkCount[0] < 5) {
+                        targetTile.setBackground(colors[blinkCount[0] % colors.length]);
+                        blinkCount[0]++;
+                    } else {
+                        targetTile.setBackground(Color.LIGHT_GRAY);
+                        performSwapping(targetTile, emptyTile, direction);
+                        currentIndex[0]++;
+                        blinkCount[0] = 0;
+                    }
+                } else {
+                    ((Timer) e.getSource()).stop();
+                    setButtonsAndTilesClickable(true);
+                    showPopUp();
+                }
+            }
+        });
+        setButtonsAndTilesClickable(false);
+        timer.start();
+    }
+
+    private JDialog createLoadingDialog() {
+        // Create a loading pop-up dialog
+
+        JDialog loadingDialog = new JDialog(frame, "Loading", true);
+        loadingDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        loadingDialog.setSize(200, 100);
+
+        JPanel panel = new JPanel();
+        JLabel loadingLabel = new JLabel("Running Algorithm...");
+        panel.add(loadingLabel);
+        loadingDialog.add(panel);
+
+        loadingDialog.setLocationRelativeTo(frame);
+        loadingDialog.setVisible(true);
+
+        System.out.println("I am at the end of the createLoadingDialog function");
+        return loadingDialog;
+    }
+
+
+    // Add this method to close the loading popup
+    private void closeLoadingPopup() {
+        SwingUtilities.invokeLater(() -> {
+
+                loadingPopUp.dispose();
+
+        });
+    }
+
 }
