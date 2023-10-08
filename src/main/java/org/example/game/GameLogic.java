@@ -1,5 +1,7 @@
 package org.example.game;
-import org.example.board.BoardGen;
+import org.example.Solver.BoardGen;
+import org.example.Solver.SolveType;
+import org.example.Solver.Solver;
 import org.example.config.ApplicationConfig;
 import org.example.dao.UserDAO;
 import org.example.menu.MenuUI;
@@ -141,9 +143,9 @@ public  class GameLogic implements ActionListener{
 
     public  int[][] updateBoard() {
         /*
-* updates the board from tiles to 2d array int[][] board
-* Called when create the board and whenever player make changes on board
-*/
+        * updates the board from tiles to 2d array int[][] board
+        * Called when create the board and whenever player make changes on board
+        */
         int[][] updatedBoard = new int[boardSize][boardSize];
         int index = 0;
         for (int row = 0; row < boardSize; row++) {
@@ -187,7 +189,7 @@ public  class GameLogic implements ActionListener{
 
 
     public  void showHint() {
-        ArrayList<String> result = solveBoard();
+        ArrayList<String> result = solveBoard(GameUI.selectedSolveType);
 
         if (!result.isEmpty()) {
             String firstElement = result.get(0);
@@ -245,17 +247,16 @@ public  class GameLogic implements ActionListener{
 
 
 
-    public  ArrayList<String> solveBoard() {
+    public ArrayList<String> solveBoard(SolveType selectedSolveType) {
         /*
-* Return the result list
-* ex: {"8 U", "5 D", ...}
-*/
+        * Return the result list based on the selected solve type
+        * ex: {"8 U", "5 D", ...}
+        */
         currentBoard = this.updateBoard();
-        solver = new Solver(currentBoard, boardSize);
+        solver = new Solver(currentBoard, boardSize, selectedSolveType);
         ArrayList<String> result = solver.returnResult();
         return result;
-
-    }
+    }    
 
 
     public  boolean isAdjacent(JButton button1, JButton button2) {
@@ -350,7 +351,7 @@ public  class GameLogic implements ActionListener{
         if (clickedButton.getActionCommand().equals("solveBoard")) {
             stopWatch.stop();
             usedSolver = true;
-            ArrayList<String> result = this.solveBoard();
+            ArrayList<String> result = this.solveBoard(GameUI.selectedSolveType);
             Timer timer = new Timer(400, new ActionListener() {
                 private int currentIndex = 0;
                 private int blinkCount = 0;
@@ -454,9 +455,6 @@ public  class GameLogic implements ActionListener{
                     if (enteredName.isEmpty()) {
                         JOptionPane.showMessageDialog(null, "Please enter your name.", "Error", JOptionPane.ERROR_MESSAGE);
                     } else {
-                        System.out.println("entered name : " + enteredName);
-                        System.out.println("selectedCountry : "+ selectedCountry);
-                        System.out.println("I entered something in the name section and clicked ok");
                         this.frame.getContentPane().removeAll();
                         this.frame.repaint();
                         HashMap<Integer, ScoreRecord> scoreRecordHashMap = new HashMap<>();
@@ -466,7 +464,6 @@ public  class GameLogic implements ActionListener{
 
 
                         MenuUI menu = new MenuUI(this.frame);
-                        System.out.println("I am at the end of this function");
 
                         break;
 
@@ -477,7 +474,6 @@ public  class GameLogic implements ActionListener{
             JOptionPane.showMessageDialog(null, completeMessage, "Congratulations!", JOptionPane.PLAIN_MESSAGE);
             this.frame.getContentPane().removeAll();
             this.frame.repaint();
-            System.out.println("I am here after clicking ok" );
             MenuUI menu = new MenuUI(this.frame);
             this.frame.setContentPane(menu);
             this.frame.revalidate();
