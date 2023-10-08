@@ -1,4 +1,6 @@
 package org.example.game;
+import org.example.Solver.SolveType;
+import org.example.Solver.Solver;
 import org.example.config.ApplicationConfig;
 import org.example.menu.MenuUI;
 
@@ -6,6 +8,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class GameUI implements ActionListener {
@@ -23,7 +27,7 @@ public class GameUI implements ActionListener {
 
     public JButton backButton;
 
-    public static JButton hintButton;
+    public static JButton hintButton; //static calls in GameLogic
     public static JButton solveButton;
     public JLabel timerLabel; 
 
@@ -33,17 +37,43 @@ public class GameUI implements ActionListener {
 
     public Stopwatch stopWatch;
 
+    public static SolveType selectedSolveType = SolveType.BFS; // for storing value of algorithm drop down menu
+    private Map<String, SolveType> algorithmMap = new HashMap<>();
+    
     public GameUI(int size, JFrame frame) {
         this.frame = frame;
         boardSize = size;
         this.bottomPanel = this.createBottomPanel();
-        gameLogic = new GameLogic(size, countMoveLabel, this.stopWatch,this.frame);
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.topPanel = this.createTopPanel();
         this.board = gameLogic.createBoard();
         this.midPanel = this.createMidPanel();
+        algorithmMap.put("BFS", SolveType.BFS);
+        algorithmMap.put("A*", SolveType.A_STAR);
         drawGame(this.frame.getWidth(), this.frame.getHeight());
         this.frame.setVisible(true);
+    }
+    
+    private JComboBox<String> createAlgoDropDownMenu() {
+        String[] algorithms = { "BFS", "A*" };
+        JComboBox<String> algorithmComboBox = new JComboBox<>(algorithms);
+    
+        // Set the default selection to "BFS"
+        algorithmComboBox.setSelectedItem("BFS");
+        this.selectedSolveType = SolveType.BFS;
+    
+        // Add an ActionListener to the dropdown menu to update the selected algorithm
+        algorithmComboBox.addActionListener(e -> {
+            String selected = (String) algorithmComboBox.getSelectedItem();
+            if (selected != null) {
+                SolveType selectedType = algorithmMap.get(selected);
+                if (selectedType != null) {
+                    this.selectedSolveType = selectedType;
+                }
+            }
+        });
+    
+        return algorithmComboBox;
     }
     
 
@@ -56,6 +86,7 @@ public class GameUI implements ActionListener {
         this.backButton = this.createBackButton();
         this.solveButton = this.createSolveButton();
         this.hintButton = this.createHintButton();
+        
 
         //To store backButton, solveButton and hintButton
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER,10,25));
@@ -63,6 +94,7 @@ public class GameUI implements ActionListener {
         buttonPanel.add(this.backButton);
         buttonPanel.add(this.hintButton);
         buttonPanel.add(this.solveButton);
+        buttonPanel.add(this.createAlgoDropDownMenu());
         
         topPanel.add(buttonPanel, BorderLayout.WEST);
         // topPanel.add(this.solveButton, BorderLayout.EAST);
@@ -126,7 +158,9 @@ public class GameUI implements ActionListener {
         solveButton = new JButton("Solve");
         solveButton.setPreferredSize(new Dimension(ApplicationConfig.BUTTON_WIDTH, ApplicationConfig.BUTTON_HEIGHT));
         solveButton.setActionCommand("solveBoard");
+        gameLogic = new GameLogic(boardSize, countMoveLabel, this.stopWatch,this.frame);
         solveButton.addActionListener(gameLogic);
+
         return solveButton;
     }
 

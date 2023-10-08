@@ -1,4 +1,4 @@
-package org.example.board;
+package org.example.Solver;
 import java.util.*;
 
 /*
