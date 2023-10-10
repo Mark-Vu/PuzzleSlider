@@ -25,6 +25,8 @@ public class Solver {
 			resultState = this.Astar(this.startBoard);
 		} else if (this.solveType == SolveType.BFS) {
 			resultState = this.bfs(this.startBoard);
+		}else if (this.solveType == SolveType.DFS){
+			resultState = this.dfs(this.startBoard) ;
 		}
 		if (resultState != null) {
 
@@ -129,6 +131,63 @@ public class Solver {
 		// If the queue becomes empty and no solution is found, return null
 		return null;
 	}
+
+	public Board dfs(int[][] start) {
+
+		HashMap<Integer,Board> closed = new HashMap<>();
+		HashSet<Integer> inQueue = new HashSet<>();
+		PriorityQueue<Board> q = new PriorityQueue<>();
+		Board startState = new Board(start);
+		q.add(startState);
+		Board goalState = new Board(goalBoard);
+		inQueue.add(startState.getHashCode());
+
+		while (!q.isEmpty()) {
+			Board node = q.remove();
+			inQueue.remove(node.getHashCode());
+
+			for (Board neighbor : node.generateChild()) {
+				if (neighbor.getHashCode() == goalState.getHashCode()) {
+					neighbor.setParent(node);
+					return neighbor;
+				}
+
+				Board closedNeighbor = null;
+				Board openNeighbor = null;
+				if (inQueue.contains(neighbor.getHashCode())) {
+					//Check if the neighbor is already in the queue
+					openNeighbor = q.stream().filter(n -> n.equals(neighbor)).findFirst().get();
+					if (openNeighbor.getDistanceFromStart() > neighbor.getDistanceFromStart()) {
+						//If it is, check if the one in the queue have higher g value
+						q.remove(openNeighbor);
+						neighbor.setParent(node);
+						q.add(neighbor);
+					}
+				}
+				else {
+					int neighborCode = neighbor.getHashCode();
+					if (closed.containsKey(neighborCode)) {
+						//Check if we already visited the state
+						closedNeighbor = closed.get(neighbor.getHashCode());
+						if(closedNeighbor.getDistanceFromStart() > neighbor.getDistanceFromStart()) {
+							//If we already did, we don't visit it anymore
+							closed.put(neighborCode, neighbor);
+						}
+					}
+
+				}
+				if (openNeighbor == null && closedNeighbor == null) {
+					q.add(neighbor);
+					neighbor.setParent(node);
+					inQueue.add(neighbor.getHashCode());
+				}
+
+			}
+			closed.put(node.getHashCode(), node); // this line is moving node to the closed set
+		}
+		return null;
+	}
+
 
 
 }

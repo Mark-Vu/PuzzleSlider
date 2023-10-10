@@ -50,12 +50,13 @@ public class GameUI implements ActionListener {
         this.midPanel = this.createMidPanel();
         algorithmMap.put("BFS", SolveType.BFS);
         algorithmMap.put("A*", SolveType.A_STAR);
+        algorithmMap.put("DFS", SolveType.DFS);
         drawGame(this.frame.getWidth(), this.frame.getHeight());
         this.frame.setVisible(true);
     }
     
     private JComboBox<String> createAlgoDropDownMenu() {
-        String[] algorithms = { "BFS", "A*" };
+        String[] algorithms = { "BFS", "A*", "DFS" };
         JComboBox<String> algorithmComboBox = new JComboBox<>(algorithms);
     
         // Set the default selection to "BFS"
