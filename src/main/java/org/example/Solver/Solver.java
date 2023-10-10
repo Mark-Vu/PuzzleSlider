@@ -133,9 +133,8 @@ public class Solver {
 	}
 
 	public Board dfs(int[][] start) {
-		System.out.println("asdfasfasdfqsadfs");
+
 		HashMap<Integer,Board> closed = new HashMap<>();
-		//Hashset is there to quick loop up element in the queue
 		HashSet<Integer> inQueue = new HashSet<>();
 		PriorityQueue<Board> q = new PriorityQueue<>();
 		Board startState = new Board(start);
