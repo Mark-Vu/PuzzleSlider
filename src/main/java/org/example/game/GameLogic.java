@@ -63,7 +63,7 @@ public  class GameLogic implements ActionListener{
     private String  emptyRow ; 
     private String  emptyColumn ;
 
-    private JDialog  loadingPopUp ;
+    private JDialog  loadingPopUp = null ;
 
     public GameLogic(int boardSize, JLabel countMoveLabel, Stopwatch stopWatch, JFrame frame) {
         this.frame = frame;
@@ -356,87 +356,45 @@ public  class GameLogic implements ActionListener{
         }
 
 
-//        if (clickedButton.getActionCommand().equals("solveBoard")) {
-//            stopWatch.stop();
-//            usedSolver = true;
-//            loadingPopUp = createLoadingDialog();
-//            ArrayList<String> result = this.solveBoard();
-//            Timer timer = new Timer(400, new ActionListener() {
-//                private int currentIndex = 0;
-//                private int blinkCount = 0;
-//                private Color[] colors = {Color.YELLOW, tileColor};
-//
-//                @Override
-//                public void actionPerformed(ActionEvent e) {
-//                    if (currentIndex < result.size()) {
-//                        String move = result.get(currentIndex);
-//                        int number = extractNumber(move);
-//                        char direction = extractMove(move);
-//                        JButton targetTile = findTileWithNumber(number);
-//                        JButton emptyTile = findEmptyTile();
-//
-//
-//                        if (blinkCount < 5) {
-//                            targetTile.setBackground(colors[blinkCount % colors.length]);
-//                            blinkCount++;
-//                        } else {
-//                            targetTile.setBackground(Color.LIGHT_GRAY);
-//                            performSwapping(targetTile, emptyTile, direction);
-//                            currentIndex++;
-//                            blinkCount = 0;
-//                        }
-//
-//                    } else {
-//                        ((Timer) e.getSource()).stop();
-//                        setButtonsAndTilesClickable(true);
-//                        showPopUp() ;
-//                    }
-//                }
-//            });
-//            setButtonsAndTilesClickable(false);
-//            timer.start();
-//        }
         if (clickedButton.getActionCommand().equals("solveBoard")) {
         stopWatch.stop();
         usedSolver = true;
 
-        // Create the loading pop-up
+            // Create the loading pop-up
             SwingUtilities.invokeLater(() -> {
                 this.loadingPopUp = createLoadingDialog();
+            });
+            System.out.println("I am before the doInBackground function");
+            // Create and execute the SwingWorker to run the algorithm in the background
+            SwingWorker<ArrayList<String>, Void> solverWorker = new SwingWorker<ArrayList<String>, Void>() {
+                @Override
+                protected ArrayList<String> doInBackground() throws Exception {
+                    System.out.println("I am in the doInBackground function");
+                    return solveBoard();
+                }
+            };
+
+
+            // Add a PropertyChangeListener to detect when the SwingWorker is done
+            solverWorker.addPropertyChangeListener(evt -> {
+                if (evt.getPropertyName().equals("state") && evt.getNewValue() == SwingWorker.StateValue.DONE) {
+
+                    ArrayList<String> result ;
+                    try {
+                        result = solverWorker.get(); // Get the result from doInBackground
+                        System.out.println("result of the algorithm : " +Arrays.deepToString(result.toArray()));
+                        closeLoadingPopup();
+                        updateUIWithResult(result); // Update the UI and perform swapping
+                    } catch (InterruptedException | ExecutionException ex) {
+                        ex.printStackTrace();
+                    }
+                }
             });
 
 
 
-            System.out.println("I am before the doInBackground function");
-        // Create and execute the SwingWorker to run the algorithm in the background
-        SwingWorker<ArrayList<String>, Void> solverWorker = new SwingWorker<ArrayList<String>, Void>() {
-            @Override
-            protected ArrayList<String> doInBackground() throws Exception {
-                System.out.println("I am in the doInBackground function");
-                return solveBoard(); // Run your algorithm and return the result
-            }
-        };
-
-
-        // Add a PropertyChangeListener to detect when the SwingWorker is done
-        solverWorker.addPropertyChangeListener(evt -> {
-            if (evt.getPropertyName().equals("state") && evt.getNewValue() == SwingWorker.StateValue.DONE) {
-
-                ArrayList<String> result ;
-                try {
-
-                    result = solverWorker.get(); // Get the result from doInBackground
-                    System.out.println("result of the algorithm : " +Arrays.deepToString(result.toArray()));
-                    closeLoadingPopup();
-                    updateUIWithResult(result); // Update the UI and perform swapping
-                } catch (InterruptedException | ExecutionException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
-
-        solverWorker.execute(); // Start the SwingWorker
-        setButtonsAndTilesClickable(false);
+            solverWorker.execute(); // Start the SwingWorker
+            setButtonsAndTilesClickable(false);
 
     }
 
@@ -664,7 +622,6 @@ public  class GameLogic implements ActionListener{
 
     private JDialog createLoadingDialog() {
         // Create a loading pop-up dialog
-
         JDialog loadingDialog = new JDialog(frame, "Loading", true);
         loadingDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         loadingDialog.setSize(200, 100);
@@ -677,17 +634,21 @@ public  class GameLogic implements ActionListener{
         loadingDialog.setLocationRelativeTo(frame);
         loadingDialog.setVisible(true);
 
-        System.out.println("I am at the end of the createLoadingDialog function");
+        System.out.println("Loading dialog created.");
         return loadingDialog;
     }
 
 
     // Add this method to close the loading popup
     private void closeLoadingPopup() {
+        System.out.println("Closing loading dialog...");
         SwingUtilities.invokeLater(() -> {
-
+            if (loadingPopUp != null) {
                 loadingPopUp.dispose();
-
+                System.out.println("Loading dialog disposed.");
+            } else {
+                System.out.println("Loading dialog is null.");
+            }
         });
     }
 
