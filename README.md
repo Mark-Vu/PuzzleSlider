@@ -16,6 +16,23 @@ A Java Swing-based puzzle solver that can solve 15 puzzle problems on different 
 ## Gameplay with solve, hint with algorithms options
 ![image](https://github.com/Mark-Vu/PuzzleSlider/assets/60988497/acc0118c-db7a-441f-80e9-da7f52a6d0f2)
 
+## Adjusting Game Difficulty
+
+Inside the `GameLogic.java` file, you can customize the difficulty of the game by changing the number of random moves in the `initializeBoard` method. This method is responsible for initializing the game board.
+
+```java
+public void initializeBoard() {
+    /*
+    * Initialize the board
+    */
+    BoardGen boardGen = new BoardGen(boardSize);
+
+    // This line determines the difficulty of the board. The higher the number, the harder the board.
+    // You can adjust the number to set the desired level of challenge.
+    this.currentBoard = boardGen.generateRandomBoard(10);
+}
+```
+
 ### Prerequisites
 
 - Java Development Kit (JDK) 8 or higher.
